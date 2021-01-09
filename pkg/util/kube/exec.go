@@ -22,6 +22,7 @@ type ExecOptions struct {
 	Err           io.Writer
 	Istty         bool
 	TimeOut       int
+	Pod           *v1.Pod
 }
 
 type NodeShellError struct {
@@ -33,16 +34,16 @@ func (err *NodeShellError) Error() string {
 	return err.ErrMsg
 }
 
-func ExecCmd(kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, pod *v1.Pod, execOptions *ExecOptions) error {
+func ExecCmd(kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, execOptions *ExecOptions) error {
 
-	if pod.Status.Phase != v1.PodRunning {
-		logrus.Println("Pod 没有就绪：", pod.Name, pod.Status.HostIP)
+	if execOptions.Pod.Status.Phase != v1.PodRunning {
+		logrus.Println("Pod 没有就绪：", execOptions.Pod.Name, execOptions.Pod.Status.HostIP)
 		err := NodeShellError{500, "Pod 没有就绪"}
 		return &err
 	}
 
 	// 获取pod中的目标Container
-	container := containerToExec(execOptions.ContainerName, pod)
+	container := containerToExec(execOptions.ContainerName, execOptions.Pod)
 	// 创建运行表达式
 	podOptions := v1.PodExecOptions{
 		Command:   strings.Fields(execOptions.Command),
@@ -56,8 +57,8 @@ func ExecCmd(kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.C
 	// 创建客户端请求
 	req := kubeClientSet.CoreV1().RESTClient().Post().
 		Resource("pods").
-		Name(pod.Name).
-		Namespace(pod.Namespace).
+		Name(execOptions.Pod.Name).
+		Namespace(execOptions.Pod.Namespace).
 		SubResource("exec").
 		Timeout(time.Duration(execOptions.TimeOut))
 
