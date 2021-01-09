@@ -43,9 +43,10 @@ func containerNet(cmd *cobra.Command, args []string) {
 			Verbose:     true,
 		}
 		containerStatusRes, _ := cli.ContainerStatus(context.Background(), statusReq)
-
+		fmt.Println(container.Labels)
 		podname := container.Labels["io.kube.pod.name"]
 		pid := containerStatusRes.Info["pid"]
+		fmt.Println(containerStatusRes.Info)
 		color.HiBlue("---------------------> POD: %s, PID: %s <---------------------", podname, pid)
 		if outStr, errStr, err := util.CmdOutErr("/usr/bin/nsenter", "-t", pid, "-n", "/bin/sh", "-c", cmdStr); err != nil {
 			printWithPrefix(color.BlueString("[%s]", pid), outStr)
