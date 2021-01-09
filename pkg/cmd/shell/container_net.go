@@ -50,10 +50,9 @@ func containerNet(cmd *cobra.Command, args []string) {
 		podname := container.Labels["io.kubernetes.pod.name"]
 		pid := containerStatusRes.Info["pid"]
 		color.HiBlue("---------------------> POD: %s, PID: %s <---------------------", podname, pid)
-		if outStr, errStr, err := util.CmdOutErr("/usr/bin/nsenter", "-t", pid, "-n", "/bin/sh", "-c", cmdStr); err != nil {
+		if outStr, errStr, err := util.CmdOutErr("/usr/bin/nsenter", "-t", pid, "-n", "/bin/sh", "-c", cmdStr); err == nil {
 			printWithPrefix(color.BlueString("[%s]", pid), outStr)
 			printWithPrefix(color.RedString("[%s]", pid), errStr)
-
 		}
 	}
 
