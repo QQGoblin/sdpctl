@@ -9,6 +9,7 @@ import (
 	"io"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	k8stools "sdpctl/pkg/util/kube"
 	"strings"
 	"sync"
@@ -33,31 +34,33 @@ func nodeShell(cmd *cobra.Command, args []string) {
 		}
 
 		outPuts[i] = outPut
-		wg.Add(1)
-
-		if pod.Status.Phase != v1.PodRunning {
-			outPuts[i].StdOut.WriteString(" Shell容器异常")
-		} else {
-			shExecOps := k8stools.ExecOptions{
-				Command:       cmdStr,
-				ContainerName: "",
-				In:            nil,
-				Out:           outPut.StdOut,
-				Err:           outPut.StdErr,
-				Istty:         false,
-				TimeOut:       httpTimeOutInSec,
-			}
-			go k8stools.ExecCmd(kubeClientSet, kubeClientConfig, &pod, shExecOps)
-			threadNum += 1
-			if threadNum%currentThreadNum == 0 || total == i+1 {
-				wg.Wait()
-			}
+		shExecOps := k8stools.ExecOptions{
+			Command:       cmdStr,
+			ContainerName: "",
+			In:            nil,
+			Out:           outPut.StdOut,
+			Err:           outPut.StdErr,
+			Istty:         false,
+			TimeOut:       httpTimeOutInSec,
+		}
+		threadNum += 1
+		parallelExec(wg, kubeClientSet, kubeClientConfig, &pod, shExecOps)
+		if threadNum%currentThreadNum == 0 || total == i+1 {
+			wg.Wait()
 		}
 
 	}
 	printOutput(outPuts)
 }
 
+// 并行执行
+func parallelExec(wg sync.WaitGroup, kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, pod *v1.Pod, execOptions k8stools.ExecOptions) {
+	wg.Add(1)
+	go k8stools.ExecCmd(kubeClientSet, kubeClientConfig, pod, execOptions)
+	wg.Done()
+}
+
+//打印输出
 func printOutput(outPuts []OutPut) {
 	for i, output := range outPuts {
 		switch format {
