@@ -44,7 +44,8 @@ func nodeShell(cmd *cobra.Command, args []string) {
 			TimeOut:       httpTimeOutInSec,
 		}
 		threadNum += 1
-		parallelExec(wg, kubeClientSet, kubeClientConfig, &pod, shExecOps)
+		wg.Add(1)
+		go parallelExec(&wg, kubeClientSet, kubeClientConfig, &pod, &shExecOps)
 		if threadNum%currentThreadNum == 0 || total == i+1 {
 			wg.Wait()
 		}
@@ -54,9 +55,8 @@ func nodeShell(cmd *cobra.Command, args []string) {
 }
 
 // 并行执行
-func parallelExec(wg sync.WaitGroup, kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, pod *v1.Pod, execOptions k8stools.ExecOptions) {
-	wg.Add(1)
-	go k8stools.ExecCmd(kubeClientSet, kubeClientConfig, pod, execOptions)
+func parallelExec(wg *sync.WaitGroup, kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, pod *v1.Pod, execOptions *k8stools.ExecOptions) {
+	k8stools.ExecCmd(kubeClientSet, kubeClientConfig, pod, execOptions)
 	wg.Done()
 }
 

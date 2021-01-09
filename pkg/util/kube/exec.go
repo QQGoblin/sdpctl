@@ -33,7 +33,7 @@ func (err *NodeShellError) Error() string {
 	return err.ErrMsg
 }
 
-func ExecCmd(kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, pod *v1.Pod, execOptions ExecOptions) error {
+func ExecCmd(kubeClientSet *kubernetes.Clientset, kubeClientConfig *restclient.Config, pod *v1.Pod, execOptions *ExecOptions) error {
 
 	if pod.Status.Phase != v1.PodRunning {
 		logrus.Println("Pod 没有就绪：", pod.Name, pod.Status.HostIP)
