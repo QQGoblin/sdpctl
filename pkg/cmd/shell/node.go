@@ -48,10 +48,12 @@ func nodeShell(cmd *cobra.Command, args []string) {
 				TimeOut:       httpTimeOutInSec,
 			}
 			go k8stools.ExecCmd(kubeClientSet, kubeClientConfig, &pod, shExecOps)
+			threadNum += 1
+			if threadNum%currentThreadNum == 0 || total == i+1 {
+				wg.Wait()
+			}
 		}
-		if (i+1)%threadNum == 0 || total == i {
-			wg.Wait()
-		}
+
 	}
 	printOutput(outPuts)
 }
