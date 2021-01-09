@@ -16,7 +16,7 @@ func NewCmdSh() *cobra.Command {
 				nodeShell(cmd, args)
 				break
 			case "container-net":
-				dockerNet(cmd, args)
+				containerNet(cmd, args)
 				break
 			default:
 				logrus.Error("不支持该模式执行shell")

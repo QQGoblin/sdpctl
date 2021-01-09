@@ -18,7 +18,6 @@ var (
 
 func AddShellFlags(flags *pflag.FlagSet) {
 	flags.IntVar(&httpTimeOutInSec, "kubelet-timeout", 30, "连接Kubelet超时时间。")
-	flags.IntVar(&currentThreadNum, "thread", 1, "执行shell命令的并发数。")
 	flags.StringVarP(&targetNode, "node", "n", "", "在指定宿主机节点执行操作。")
 	flags.StringVar(&shellMode, "shell-mode", "k8s-node", "执行shell的模式：k8s-node，container-net")
 	flags.StringVar(&toolName, "shell-tool-name", "node-shell", "Shell客户端工具名称。")

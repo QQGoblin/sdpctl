@@ -19,7 +19,7 @@ const (
 	DefaultEndpoint = "unix:///var/run/crio/crio.sock"
 )
 
-func dockerNet(cmd *cobra.Command, args []string) {
+func containerNet(cmd *cobra.Command, args []string) {
 
 	if len(args) < 1 {
 		logrus.Error("请输入要执行的命令")
@@ -78,7 +78,6 @@ func printWithPrefix(prefixStr, s string) {
 			fmt.Printf("%s %s\n", prefixStr, strings.TrimRight(line, "\n"))
 		}
 		if err != nil || io.EOF == err {
-
 			break
 		}
 
