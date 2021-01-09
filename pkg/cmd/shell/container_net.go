@@ -37,6 +37,10 @@ func containerNet(cmd *cobra.Command, args []string) {
 
 	for _, container := range containerRes.Containers {
 
+		if container.State != pb.ContainerState_CONTAINER_RUNNING {
+			continue
+		}
+
 		// 获取容器详情
 		statusReq := &pb.ContainerStatusRequest{
 			ContainerId: container.Id,
