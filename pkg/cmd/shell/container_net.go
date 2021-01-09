@@ -74,9 +74,13 @@ func printWithPrefix(prefixStr, s string) {
 	buf := bytes.NewBufferString(s)
 	for {
 		line, err := buf.ReadString('\n')
+		if !strings.EqualFold(line, "") {
+			fmt.Printf("%s %s\n", prefixStr, strings.TrimRight(line, "\n"))
+		}
 		if err != nil || io.EOF == err {
+
 			break
 		}
-		fmt.Printf("%s %s", prefixStr, line)
+
 	}
 }

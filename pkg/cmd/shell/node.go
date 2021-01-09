@@ -20,26 +20,27 @@ func nodeShell(cmd *cobra.Command, args []string) {
 	// 返回所有需要运行运行的Node列表
 	pods := getShellPods(kubeClientSet, targetNode, toolName)
 	for _, pod := range pods {
-		stdOut := bytes.NewBufferString("")
-		stdErr := bytes.NewBufferString("")
+		var stdOut, stdErr bytes.Buffer
 		shExecOps := k8stools.ExecOptions{
 			Command:       cmdStr,
 			ContainerName: "",
 			In:            nil,
-			Out:           stdOut,
-			Err:           stdErr,
+			Out:           &stdOut,
+			Err:           &stdErr,
 			Istty:         false,
 			TimeOut:       httpTimeOutInSec,
 			Pod:           &pod,
 		}
-		k8stools.ExecCmd(kubeClientSet, kubeClientConfig, &shExecOps)
+		if err := k8stools.ExecCmd(kubeClientSet, kubeClientConfig, &shExecOps); err != nil {
+			stdErr.Write([]byte(err.Error()))
+		}
 		printOutput(&pod, stdOut, stdErr)
 	}
 
 }
 
 //打印输出
-func printOutput(pod *v1.Pod, stdOut, stdErr *bytes.Buffer) {
+func printOutput(pod *v1.Pod, stdOut, stdErr bytes.Buffer) {
 
 	switch format {
 	case "raw":
