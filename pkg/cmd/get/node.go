@@ -18,11 +18,11 @@ import (
 )
 
 var labelFilter = mapset.NewSet(
-	"beta.kube.io/arch",
-	"beta.kube.io/os",
-	"kube.io/arch",
-	"kube.io/hostname",
-	"kube.io/os",
+	"beta.kubernetes.io/arch",
+	"beta.kubernetes.io/os",
+	"kubernetes.io/arch",
+	"kubernetes.io/hostname",
+	"kubernetes.io/os",
 )
 
 func NewCmdNode() *cobra.Command {
@@ -79,7 +79,7 @@ func nodeBriefInfo(kubeClientSet *kubernetes.Clientset, nodes *v1.NodeList, node
 				typeLabel = append(typeLabel, k)
 				continue
 			}
-			if strings.HasPrefix(k, "node-role.kube.io") {
+			if strings.HasPrefix(k, "node-role.kubernetes.io") {
 				role = strings.Split(k, "/")[1]
 				continue
 			}
