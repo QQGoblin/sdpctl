@@ -8,7 +8,6 @@ import (
 
 var (
 	httpTimeOutInSec int
-	currentThreadNum int
 	targetNode       string
 	shellMode        string
 	toolName         string

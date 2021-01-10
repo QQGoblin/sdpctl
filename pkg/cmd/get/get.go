@@ -11,6 +11,5 @@ func NewCmdGet() *cobra.Command {
 		DisableFlagsInUseLine: true,
 	}
 	cmd.AddCommand(NewCmdNode())
-	addGetFlags(cmd.Flags())
 	return cmd
 }

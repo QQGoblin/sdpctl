@@ -34,6 +34,7 @@ func NewCmdNode() *cobra.Command {
 			node(cmd, args)
 		},
 	}
+	addGetNodeFlags(cmd.Flags())
 	return cmd
 }
 
