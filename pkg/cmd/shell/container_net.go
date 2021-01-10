@@ -26,11 +26,8 @@ func containerNet(cmd *cobra.Command, args []string) {
 	}
 	cmdStr := strings.Join(args, " ")
 
-	cli, err := getRuntimeClient(DefaultEndpoint)
-	if err != nil {
-		logrus.Errorf("创建CRI客户端失败，$s", err.Error())
-		return
-	}
+	cli, conn := getRuntimeClient(DefaultEndpoint)
+	defer closeConn(conn)
 
 	reqContainer := &pb.ListContainersRequest{}
 	containerRes, _ := cli.ListContainers(context.Background(), reqContainer)
@@ -59,19 +56,27 @@ func containerNet(cmd *cobra.Command, args []string) {
 }
 
 // 创建gRPC连接
-func getRuntimeClient(endPoint string) (pb.RuntimeServiceClient, error) {
+func getRuntimeClient(endPoint string) (pb.RuntimeServiceClient, *grpc.ClientConn) {
 	conn, err := grpc.Dial(endPoint, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		errMsg := errors.Wrapf(err, "connect endpoint '%s', make sure you are running as root and the endpoint has been started", endPoint)
 		logrus.Error(errMsg)
+		return nil, conn
 	} else {
 		logrus.Debugf("connected successfully using endpoint: %s", endPoint)
 	}
 	runtimeClient := pb.NewRuntimeServiceClient(conn)
-	return runtimeClient, nil
+	return runtimeClient, conn
 }
 
-// f
+// 关闭gRPC连接
+func closeConn(conn *grpc.ClientConn) {
+	if conn != nil {
+		conn.Close()
+	}
+}
+
+// 带前缀输出
 func printWithPrefix(prefixStr, s string) {
 	buf := bytes.NewBufferString(s)
 	for {
