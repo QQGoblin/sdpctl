@@ -10,7 +10,7 @@ func NewCmdGet() *cobra.Command {
 		Short:                 "打印信息",
 		DisableFlagsInUseLine: true,
 	}
-	addGetFlags(cmd.Flags())
 	cmd.AddCommand(NewCmdNode())
+	addGetFlags(cmd.Flags())
 	return cmd
 }
